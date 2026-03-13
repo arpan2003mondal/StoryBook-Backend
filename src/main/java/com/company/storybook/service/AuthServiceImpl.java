@@ -3,14 +3,21 @@ package com.company.storybook.service;
 import com.company.storybook.dto.RegisterRequest;
 import com.company.storybook.dto.LoginRequest;
 import com.company.storybook.entity.User;
+import com.company.storybook.entity.Wallet;
+import com.company.storybook.entity.Cart;
 import com.company.storybook.exception.StoryBookException;
 import com.company.storybook.repository.UserRepository;
+import com.company.storybook.repository.WalletRepository;
+import com.company.storybook.repository.CartRepository;
 import com.company.storybook.utility.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -32,7 +39,14 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private MessageSource messageSource;
 
+    @Autowired
+    private WalletRepository walletRepository;
+
+    @Autowired
+    private CartRepository cartRepository;
+
     @Override
+    @Transactional
     public String registerUser(RegisterRequest registerRequest) throws StoryBookException {
 
         Optional<User> optional = userRepository.findByEmail(registerRequest.getEmail());
@@ -47,7 +61,22 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(registerRequest.getEmail());
         user.setPassword(registerRequest.getPassword());
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        // Create wallet with 1000 RS initial balance
+        Wallet wallet = new Wallet();
+        wallet.setUser(savedUser);
+        wallet.setBalance(new BigDecimal("1000.00"));
+        wallet.setCreatedAt(LocalDateTime.now());
+        wallet.setUpdatedAt(LocalDateTime.now());
+        walletRepository.save(wallet);
+
+        // Create empty cart for user
+        Cart cart = new Cart();
+        cart.setUser(savedUser);
+        cart.setCreatedAt(LocalDateTime.now());
+        cart.setUpdatedAt(LocalDateTime.now());
+        cartRepository.save(cart);
 
         return "User Registration Successfull";
     }

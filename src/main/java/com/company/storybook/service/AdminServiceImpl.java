@@ -17,6 +17,7 @@ import com.company.storybook.utility.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -56,6 +57,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional
     public StorybookResponse addStorybook(StorybookRequest request) throws StoryBookException {
         Author author = authorRepository.findById(request.getAuthorId())
                 .orElseThrow(() -> new StoryBookException("author.not.found"));
