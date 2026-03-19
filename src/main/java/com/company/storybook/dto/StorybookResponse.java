@@ -17,6 +17,7 @@ public class StorybookResponse {
     private String categoryName;
     private BigDecimal price;
     private String audioUrl;
+    private String sampleAudioUrl;
     private String coverImageUrl;
     private LocalDateTime createdAt;
 }

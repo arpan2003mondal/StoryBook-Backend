@@ -106,7 +106,7 @@ Headers:
 
 #### Get All Storybooks
 ```
-GET /api/storybooks
+GET /storybooks
 Headers:
 - Authorization: Bearer {{userToken}}
 ```
@@ -123,6 +123,7 @@ Headers:
     "categoryName": "Fantasy",
     "price": 9.99,
     "audioUrl": "https://...",
+    "sampleAudioUrl": "https://example.com/samples/hp1_sample.mp3",
     "coverImageUrl": "https://..."
   }
 ]
@@ -130,7 +131,7 @@ Headers:
 
 #### Search Storybooks by Keyword
 ```
-GET /api/storybooks/search?keyword=Harry
+GET /storybooks/search?keyword=Harry
 Headers:
 - Authorization: Bearer {{userToken}}
 ```
@@ -144,7 +145,7 @@ Headers:
 
 #### Get Specific Storybook by ID
 ```
-GET /api/storybooks/1
+GET /storybooks/1
 Headers:
 - Authorization: Bearer {{userToken}}
 ```
@@ -156,7 +157,7 @@ Headers:
 
 #### Add Item to Cart
 ```
-POST /api/storybooks/cart/add
+POST /storybooks/cart/add
 Headers:
 - Authorization: Bearer {{userToken}}
 - Content-Type: application/json
@@ -175,7 +176,7 @@ Body:
 
 #### View User's Cart
 ```
-GET /api/storybooks/cart
+GET /storybooks/cart
 Headers:
 - Authorization: Bearer {{userToken}}
 ```
@@ -191,7 +192,12 @@ Headers:
       "cartItemId": 1,
       "storybookId": 1,
       "title": "The Sorcerer's Stone",
-      "price": 9.99
+      "price": 9.99,
+      "audioUrl": "https://archive.org/download/hp1_sorcerers_2018/...",
+      "sampleAudioUrl": "https://example.com/samples/hp1_sample.mp3",
+      "coverImageUrl": "https://images.unsplash.com/...",
+      "authorName": "J.K. Rowling",
+      "categoryName": "Fantasy"
     }
   ],
   "totalValue": 29.97
@@ -200,7 +206,7 @@ Headers:
 
 #### Remove Item from Cart
 ```
-DELETE /api/storybooks/cart/items/1
+DELETE /storybooks/cart/items/1
 Headers:
 - Authorization: Bearer {{userToken}}
 ```
@@ -276,7 +282,11 @@ Headers:
       "id": 1,
       "title": "The Sorcerer's Stone",
       "authorName": "J.K. Rowling",
-      "price": 9.99
+      "price": 9.99,
+      "audioUrl": "https://archive.org/download/hp1_sorcerers_2018/...",
+      "sampleAudioUrl": "https://example.com/samples/hp1_sample.mp3",
+      "coverImageUrl": "https://images.unsplash.com/...",
+      "categoryName": "Fantasy"
     }
   ],
   "total": 1
@@ -302,6 +312,7 @@ Body:
   "categoryId": 1,
   "price": 8.99,
   "audioUrl": "https://archive.org/download/hobbit_librivox/hobbit_64kb.m4b",
+  "sampleAudioUrl": "https://example.com/samples/hobbit_sample.mp3",
   "coverImageUrl": "https://images.unsplash.com/photo-1507842217343-583f20270319?w=400&h=600&fit=crop"
 }
 ```
@@ -318,6 +329,7 @@ Example 1 - Mystery Book:
   "categoryId": 2,
   "price": 7.99,
   "audioUrl": "https://archive.org/download/murder_orient_express/mystery.m4b",
+  "sampleAudioUrl": "https://example.com/samples/murder_orient_express_sample.mp3",
   "coverImageUrl": "https://images.unsplash.com/photo-1507842217343-583f20270319?w=400&h=600&fit=crop"
 }
 ```
@@ -331,6 +343,7 @@ Example 2 - Adventure Book:
   "categoryId": 3,
   "price": 6.99,
   "audioUrl": "https://archive.org/download/treasure_island/adventure.m4b",
+  "sampleAudioUrl": "https://example.com/samples/treasure_island_sample.mp3",
   "coverImageUrl": "https://images.unsplash.com/photo-1507842217343-583f20270319?w=400&h=600&fit=crop"
 }
 ```

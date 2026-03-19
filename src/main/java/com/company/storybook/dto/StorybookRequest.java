@@ -28,5 +28,7 @@ public class StorybookRequest {
     @NotBlank(message = "{storybook.audio.url.required}")
     private String audioUrl;
 
+    private String sampleAudioUrl;
+
     private String coverImageUrl;
 }

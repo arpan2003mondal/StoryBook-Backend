@@ -13,6 +13,8 @@ public class CartItemDTO {
     private String authorName;
     private String categoryName;
     private BigDecimal price;
+    private String audioUrl;
+    private String sampleAudioUrl;
     private String coverImageUrl;
     private Integer quantity;
 }

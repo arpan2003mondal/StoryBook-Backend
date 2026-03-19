@@ -35,6 +35,9 @@ public class Storybook {
     @Column(name = "audio_url", length = 500)
     private String audioUrl;
 
+    @Column(name = "sample_audio_url", length = 500)
+    private String sampleAudioUrl;
+
     @Column(name = "cover_image_url", length = 500)
     private String coverImageUrl;
 

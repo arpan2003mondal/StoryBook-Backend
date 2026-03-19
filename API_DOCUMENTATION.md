@@ -28,7 +28,7 @@ This implementation provides a complete search and shopping cart functionality f
 
 #### Get All Storybooks
 ```
-GET /api/storybooks
+GET /storybooks
 Content-Type: application/json
 
 Response (200 OK):
@@ -43,6 +43,7 @@ Response (200 OK):
     "categoryName": "Fantasy",
     "price": 9.99,
     "audioUrl": "https://example.com/audio/1",
+    "sampleAudioUrl": "https://example.com/samples/book1_sample.mp3",
     "coverImageUrl": "https://example.com/image/1",
     "createdAt": "2026-03-13T22:30:00"
   },
@@ -52,10 +53,10 @@ Response (200 OK):
 
 #### Get Storybook Details by ID
 ```
-GET /api/storybooks/{id}
+GET /storybooks/{id}
 Content-Type: application/json
 
-Example: GET /api/storybooks/1
+Example: GET /storybooks/1
 
 Response (200 OK):
 {
@@ -68,6 +69,7 @@ Response (200 OK):
   "categoryName": "Fantasy",
   "price": 9.99,
   "audioUrl": "https://example.com/audio/1",
+  "sampleAudioUrl": "https://example.com/samples/book1_sample.mp3",
   "coverImageUrl": "https://example.com/image/1",
   "createdAt": "2026-03-13T22:30:00"
 }
@@ -82,13 +84,13 @@ Error Response (404):
 
 #### Search Storybooks
 ```
-GET /api/storybooks/search?keyword={keyword}
+GET /storybooks/search?keyword={keyword}
 Content-Type: application/json
 
 Examples:
-- GET /api/storybooks/search?keyword=fantasy
-- GET /api/storybooks/search?keyword=John%20Doe
-- GET /api/storybooks/search?keyword=adventure
+- GET /storybooks/search?keyword=fantasy
+- GET /storybooks/search?keyword=John%20Doe
+- GET /storybooks/search?keyword=adventure
 
 Response (200 OK):
 [
@@ -116,7 +118,7 @@ Notes:
 
 #### Add Item to Cart
 ```
-POST /api/storybooks/cart/add
+POST /storybooks/cart/add
 Authorization: Bearer {JWT_TOKEN}
 Content-Type: application/json
 
@@ -139,6 +141,8 @@ Response (201 CREATED):
         "authorName": "John Doe",
         "categoryName": "Fantasy",
         "price": 9.99,
+        "audioUrl": "https://example.com/audio/1",
+        "sampleAudioUrl": "https://example.com/samples/book1_sample.mp3",
         "coverImageUrl": "https://example.com/image/1",
         "quantity": 1
       }
@@ -174,7 +178,7 @@ Error Cases:
 
 #### Get User's Cart
 ```
-GET /api/storybooks/cart
+GET /storybooks/cart
 Authorization: Bearer {JWT_TOKEN}
 Content-Type: application/json
 
@@ -190,6 +194,8 @@ Response (200 OK):
       "authorName": "John Doe",
       "categoryName": "Fantasy",
       "price": 9.99,
+      "audioUrl": "https://example.com/audio/1",
+      "sampleAudioUrl": "https://example.com/samples/book1_sample.mp3",
       "coverImageUrl": "https://example.com/image/1",
       "quantity": 1
     },
@@ -201,6 +207,8 @@ Response (200 OK):
       "authorName": "Jane Smith",
       "categoryName": "Mystery",
       "price": 7.99,
+      "audioUrl": "https://example.com/audio/2",
+      "sampleAudioUrl": "https://example.com/samples/book2_sample.mp3",
       "coverImageUrl": "https://example.com/image/2",
       "quantity": 1
     }
@@ -219,11 +227,11 @@ Error Response (400):
 
 #### Remove Item from Cart
 ```
-DELETE /api/storybooks/cart/items/{cartItemId}
+DELETE /storybooks/cart/items/{cartItemId}
 Authorization: Bearer {JWT_TOKEN}
 Content-Type: application/json
 
-Example: DELETE /api/storybooks/cart/items/1
+Example: DELETE /storybooks/cart/items/1
 
 Response (200 OK):
 {
@@ -277,22 +285,22 @@ Error Cases:
    POST /users/login     →  JWT Token Received
 
 2. Browse Storybooks
-   GET /api/storybooks   →  View all available audiobooks
-   GET /api/storybooks/search?keyword=... → Search by title/author/genre
+   GET /storybooks   →  View all available audiobooks
+   GET /storybooks/search?keyword=... → Search by title/author/genre
 
 3. View Details
-   GET /api/storybooks/{id}  →  See complete story details
+   GET /storybooks/{id}  →  See complete story details
 
 4. Add to Cart
-   POST /api/storybooks/cart/add
+   POST /storybooks/cart/add
    {storybookId: 1}
    ↓
    Check if duplicate? → YES: Error message
                       → NO: Add to cart
 
 5. Manage Cart
-   GET /api/storybooks/cart    → View cart contents
-   DELETE /api/storybooks/cart/items/{cartItemId}  → Remove item
+   GET /storybooks/cart    → View cart contents
+   DELETE /storybooks/cart/items/{cartItemId}  → Remove item
 
 6. Continue Shopping or Checkout
    [Repeat step 2-5 or proceed to payment]

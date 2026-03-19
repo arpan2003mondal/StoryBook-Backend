@@ -20,8 +20,8 @@ import java.util.Locale;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/storybooks")
-@CrossOrigin(origins = "*")
+@RequestMapping("/storybooks")
+
 
 public class StoryBookUserController {
 

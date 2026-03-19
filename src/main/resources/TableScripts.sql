@@ -30,6 +30,7 @@ CREATE TABLE storybooks (
     category_id BIGINT,
     price DECIMAL(10,2),
     audio_url VARCHAR(500),
+    sample_audio_url VARCHAR(500),
     cover_image_url VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -142,12 +143,12 @@ INSERT INTO categories (name, description) VALUES
 ('Thriller',  'Fast-paced stories designed to create tension and excitement.');
 
 -- Storybooks
-INSERT INTO storybooks (title, description, author_id, category_id, price, audio_url, cover_image_url) VALUES
-('The Sorcerer''s Stone',        'A young boy discovers he is a wizard and enrolls in a school of magic.',                        1, 1, 9.99,  'https://archive.org/download/hp1_sorcerers_2018/Harry%20Potter%201%20-%20The%20Sorcerers%20Stone.m4b',          'https://images.unsplash.com/photo-1507842217343-583f20270319?w=400&h=600&fit=crop'),
-('The Chamber of Secrets',       'Harry returns to Hogwarts and uncovers the mystery of the Chamber of Secrets.',                  1, 1, 9.99,  'https://archive.org/download/hp2_chamber_2018/Harry%20Potter%202%20-%20Chamber%20of%20Secrets.m4b',        'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&h=600&fit=crop'),
-('The Prisoner of Azkaban',      'Harry learns about a dangerous escaped prisoner with a mysterious connection to his past.',       1, 1, 9.99,  'https://archive.org/download/hp3_azkaban_2018/Harry%20Potter%203%20-%20Prisoner%20of%20Azkaban.m4b',       'https://images.unsplash.com/photo-1511640801487-6eda1f47c0d2?w=400&h=600&fit=crop'),
-('A Game of Thrones',            'Noble families fight for control of the mythical Seven Kingdoms.',                               2, 1, 12.99, 'https://archive.org/download/agoitslb2006_librivox/agoitslb2_00_martin_64kb.m4b',           'https://images.unsplash.com/photo-1490481651985-b8a38dc54bbb?w=400&h=600&fit=crop'),
-('A Clash of Kings',             'The Seven Kingdoms are on the brink of war as rival claimants to the Iron Throne emerge.',       2, 3, 12.99, 'https://archive.org/download/a_clash_of_kings_librivox/a_clash_of_kings_128kb.m4b',            'https://images.unsplash.com/photo-1518888753183-b66d77cecdb3?w=400&h=600&fit=crop'),
+INSERT INTO storybooks (title, description, author_id, category_id, price, audio_url, sample_audio_url, cover_image_url) VALUES
+('The Sorcerer''s Stone',        'A young boy discovers he is a wizard and enrolls in a school of magic.',                        1, 1, 9.99,  'https://archive.org/download/hp1_sorcerers_2018/Harry%20Potter%201%20-%20The%20Sorcerers%20Stone.m4b',          'https://example.com/samples/hp1_sample.mp3', 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=400&h=600&fit=crop'),
+('The Chamber of Secrets',       'Harry returns to Hogwarts and uncovers the mystery of the Chamber of Secrets.',                  1, 1, 9.99,  'https://archive.org/download/hp2_chamber_2018/Harry%20Potter%202%20-%20Chamber%20of%20Secrets.m4b',        'https://example.com/samples/hp2_sample.mp3', 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=400&h=600&fit=crop'),
+('The Prisoner of Azkaban',      'Harry learns about a dangerous escaped prisoner with a mysterious connection to his past.',       1, 1, 9.99,  'https://archive.org/download/hp3_azkaban_2018/Harry%20Potter%203%20-%20Prisoner%20of%20Azkaban.m4b',       'https://example.com/samples/hp3_sample.mp3', 'https://images.unsplash.com/photo-1511640801487-6eda1f47c0d2?w=400&h=600&fit=crop'),
+('A Game of Thrones',            'Noble families fight for control of the mythical Seven Kingdoms.',                               2, 1, 12.99, 'https://archive.org/download/agoitslb2006_librivox/agoitslb2_00_martin_64kb.m4b',           'https://example.com/samples/agodt_sample.mp3', 'https://images.unsplash.com/photo-1490481651985-b8a38dc54bbb?w=400&h=600&fit=crop'),
+('A Clash of Kings',             'The Seven Kingdoms are on the brink of war as rival claimants to the Iron Throne emerge.',       2, 3, 12.99, 'https://archive.org/download/a_clash_of_kings_librivox/a_clash_of_kings_128kb.m4b',            'https://example.com/samples/acok_sample.mp3', 'https://images.unsplash.com/photo-1518888753183-b66d77cecdb3?w=400&h=600&fit=crop');
 ('A Storm of Swords',            'The War of the Five Kings reaches its bloody climax.',                                           2, 3, 12.99, 'https://archive.org/download/asormonsword00mart_librivox/as_swords_64kb.m4b',           'https://images.unsplash.com/photo-1478622327793-142f28d1dda8?w=400&h=600&fit=crop'),
 ('Murder on the Orient Express', 'Detective Hercule Poirot investigates a murder aboard a luxury train.',                          3, 2, 7.99,  'https://archive.org/download/murder_on_the_orient_express_librivox/murder_on_the_orient_express_full.m4b',            'https://images.unsplash.com/photo-1469474646662-a14e11bb513f?w=400&h=600&fit=crop'),
 ('And Then There Were None',     'Ten strangers are lured to an isolated island and begin to die one by one.',                     3, 2, 7.99,  'https://archive.org/download/and_then_there_were_none_librivox/and_then_there_were_none_64kb.m4b',  'https://images.unsplash.com/photo-1522869635100-ce89234b2dda?w=400&h=600&fit=crop'),

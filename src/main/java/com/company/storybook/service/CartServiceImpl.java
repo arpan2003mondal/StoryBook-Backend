@@ -185,6 +185,7 @@ public class CartServiceImpl implements CartService {
         response.setDescription(storybook.getDescription());
         response.setPrice(storybook.getPrice());
         response.setAudioUrl(storybook.getAudioUrl());
+        response.setSampleAudioUrl(storybook.getSampleAudioUrl());
         response.setCoverImageUrl(storybook.getCoverImageUrl());
         response.setCreatedAt(storybook.getCreatedAt());
         
@@ -211,6 +212,8 @@ public class CartServiceImpl implements CartService {
         dto.setTitle(cartItem.getStorybook().getTitle());
         dto.setDescription(cartItem.getStorybook().getDescription());
         dto.setPrice(cartItem.getStorybook().getPrice());
+        dto.setAudioUrl(cartItem.getStorybook().getAudioUrl());
+        dto.setSampleAudioUrl(cartItem.getStorybook().getSampleAudioUrl());
         dto.setCoverImageUrl(cartItem.getStorybook().getCoverImageUrl());
         dto.setQuantity(cartItem.getQuantity());
         

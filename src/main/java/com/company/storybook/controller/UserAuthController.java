@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
+
 public class UserAuthController {
 
     @Autowired
@@ -26,6 +27,7 @@ public class UserAuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterRequest registerRequest) throws StoryBookException {
+
         String message = authService.registerUser(registerRequest);
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }

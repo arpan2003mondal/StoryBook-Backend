@@ -18,7 +18,6 @@ import com.company.storybook.repository.StorybookRepository;
 import com.company.storybook.repository.UserRepository;
 import com.company.storybook.utility.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.company.storybook.service.TokenBlacklistService;
 import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -91,6 +90,7 @@ public class AdminServiceImpl implements AdminService {
         storybook.setCategory(category);
         storybook.setPrice(request.getPrice());
         storybook.setAudioUrl(request.getAudioUrl());
+        storybook.setSampleAudioUrl(request.getSampleAudioUrl());
         storybook.setCoverImageUrl(request.getCoverImageUrl());
 
         Storybook saved = storybookRepository.save(storybook);
@@ -188,6 +188,7 @@ public class AdminServiceImpl implements AdminService {
         response.setCategoryName(storybook.getCategory().getName());
         response.setPrice(storybook.getPrice());
         response.setAudioUrl(storybook.getAudioUrl());
+        response.setSampleAudioUrl(storybook.getSampleAudioUrl());
         response.setCoverImageUrl(storybook.getCoverImageUrl());
         response.setCreatedAt(storybook.getCreatedAt());
         return response;

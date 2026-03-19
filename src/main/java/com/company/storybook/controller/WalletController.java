@@ -119,6 +119,7 @@ public class WalletController {
         response.setDescription(storybook.getDescription());
         response.setPrice(storybook.getPrice());
         response.setAudioUrl(storybook.getAudioUrl());
+        response.setSampleAudioUrl(storybook.getSampleAudioUrl());
         response.setCoverImageUrl(storybook.getCoverImageUrl());
         response.setCreatedAt(storybook.getCreatedAt());
 

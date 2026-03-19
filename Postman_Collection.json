@@ -186,9 +186,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/storybooks",
+              "raw": "{{baseUrl}}/storybooks",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "storybooks"]
+              "path": ["storybooks"]
             }
           }
         },
@@ -203,9 +203,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/storybooks/search?keyword=Harry",
+              "raw": "{{baseUrl}}/storybooks/search?keyword=Harry",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "storybooks", "search"],
+              "path": ["storybooks", "search"],
               "query": [
                 {
                   "key": "keyword",
@@ -226,9 +226,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/storybooks/1",
+              "raw": "{{baseUrl}}/storybooks/1",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "storybooks", "1"]
+              "path": ["storybooks", "1"]
             }
           }
         },
@@ -248,7 +248,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"The Hobbit\",\n  \"description\": \"A fantasy adventure about a small hobbit's unexpected journey\",\n  \"authorId\": 4,\n  \"categoryId\": 1,\n  \"price\": 8.99,\n  \"audioUrl\": \"https://archive.org/download/hobbit_librivox/hobbit_64kb.m4b\",\n  \"coverImageUrl\": \"https://images.unsplash.com/photo-1507842217343-583f20270319?w=400&h=600&fit=crop\"\n}"
+              "raw": "{\n  \"title\": \"The Hobbit\",\n  \"description\": \"A fantasy adventure about a small hobbit's unexpected journey\",\n  \"authorId\": 4,\n  \"categoryId\": 1,\n  \"price\": 8.99,\n  \"audioUrl\": \"https://archive.org/download/hobbit_librivox/hobbit_64kb.m4b\",\n  \"sampleAudioUrl\": \"https://example.com/samples/hobbit_sample.mp3\",\n  \"coverImageUrl\": \"https://images.unsplash.com/photo-1507842217343-583f20270319?w=400&h=600&fit=crop\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/admin/storybooks",
@@ -297,9 +297,9 @@
               "raw": "{\n  \"storybookId\": 1\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/storybooks/cart/add",
+              "raw": "{{baseUrl}}/storybooks/cart/add",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "storybooks", "cart", "add"]
+              "path": ["storybooks", "cart", "add"]
             }
           }
         },
@@ -322,9 +322,9 @@
               "raw": "{\n  \"storybookId\": 2\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/storybooks/cart/add",
+              "raw": "{{baseUrl}}/storybooks/cart/add",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "storybooks", "cart", "add"]
+              "path": ["storybooks", "cart", "add"]
             }
           }
         },
@@ -347,9 +347,9 @@
               "raw": "{\n  \"storybookId\": 3\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/storybooks/cart/add",
+              "raw": "{{baseUrl}}/storybooks/cart/add",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "storybooks", "cart", "add"]
+              "path": ["storybooks", "cart", "add"]
             }
           }
         },
@@ -364,9 +364,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/storybooks/cart",
+              "raw": "{{baseUrl}}/storybooks/cart",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "storybooks", "cart"]
+              "path": ["storybooks", "cart"]
             }
           }
         },
@@ -381,9 +381,9 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/storybooks/cart/items/1",
+              "raw": "{{baseUrl}}/storybooks/cart/items/1",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "storybooks", "cart", "items", "1"]
+              "path": ["storybooks", "cart", "items", "1"]
             }
           }
         }
