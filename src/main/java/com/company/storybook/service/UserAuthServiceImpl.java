@@ -3,6 +3,8 @@ package com.company.storybook.service;
 import com.company.storybook.dto.RegisterRequest;
 import com.company.storybook.dto.LoginRequest;
 import com.company.storybook.dto.ChangePasswordRequest;
+import com.company.storybook.dto.ChangeUsernameRequest;
+import com.company.storybook.dto.UserProfileDTO;
 import com.company.storybook.entity.User;
 import com.company.storybook.entity.Wallet;
 import com.company.storybook.entity.Cart;
@@ -120,5 +122,48 @@ public class UserAuthServiceImpl implements UserAuthService {
         userRepository.save(user);
 
         return messageSource.getMessage("user.password.change.success", null, Locale.ENGLISH);
+    }
+
+    @Override
+    @Transactional
+    public String changeUsername(Long userId, ChangeUsernameRequest request) throws StoryBookException {
+        // Verify user exists
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new StoryBookException("user.not.found"));
+
+        // Verify new username is not empty
+        if (request.getNewUsername() == null || request.getNewUsername().trim().isEmpty()) {
+            throw new StoryBookException("user.name.required");
+        }
+
+        // Update username
+        user.setName(request.getNewUsername());
+        userRepository.save(user);
+
+        return messageSource.getMessage("user.username.change.success", null, Locale.ENGLISH);
+    }
+
+    @Override
+    public UserProfileDTO getUserProfile(Long userId) throws StoryBookException {
+        // Verify user exists
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new StoryBookException("user.not.found"));
+
+        // Map to DTO (password is excluded)
+        return mapUserToProfileDTO(user);
+    }
+
+    /**
+     * Helper method to map User entity to UserProfileDTO
+     * Password is intentionally excluded for security
+     */
+    private UserProfileDTO mapUserToProfileDTO(User user) {
+        UserProfileDTO profile = new UserProfileDTO();
+        profile.setId(user.getId());
+        profile.setName(user.getName());
+        profile.setEmail(user.getEmail());
+        profile.setRole(user.getRole().name());
+        profile.setCreatedAt(user.getCreatedAt());
+        return profile;
     }
 }

@@ -2,27 +2,12 @@ package com.company.storybook.service;
 
 import com.company.storybook.dto.AddToCartRequest;
 import com.company.storybook.dto.CartResponseDTO;
-import com.company.storybook.dto.StorybookResponse;
 import com.company.storybook.exception.StoryBookException;
 
-import java.util.List;
-
+/**
+ * CartService Interface - Contains all cart-related operations
+ */
 public interface CartService {
-
-    /**
-     * Get all storybooks
-     */
-    List<StorybookResponse> getAllStorybooks();
-
-    /**
-     * Get storybook by ID
-     */
-    StorybookResponse getStorybookById(Long storybookId) throws StoryBookException;
-
-    /**
-     * Search storybooks by keyword (title, author, description, category)
-     */
-    List<StorybookResponse> searchStorybooks(String keyword);
 
     /**
      * Add storybook to cart for logged-in user
@@ -38,4 +23,14 @@ public interface CartService {
      * Get user's cart
      */
     CartResponseDTO getCart(Long userId) throws StoryBookException;
+
+    /**
+     * Update quantity of a cart item
+     */
+    CartResponseDTO updateCartItemQuantity(Long userId, Long cartItemId, Integer quantity) throws StoryBookException;
+
+    /**
+     * Clear all items from user's cart
+     */
+    void clearCart(Long userId) throws StoryBookException;
 }

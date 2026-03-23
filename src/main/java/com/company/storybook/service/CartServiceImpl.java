@@ -3,7 +3,6 @@ package com.company.storybook.service;
 import com.company.storybook.dto.AddToCartRequest;
 import com.company.storybook.dto.CartItemDTO;
 import com.company.storybook.dto.CartResponseDTO;
-import com.company.storybook.dto.StorybookResponse;
 import com.company.storybook.entity.Cart;
 import com.company.storybook.entity.CartItem;
 import com.company.storybook.entity.Storybook;
@@ -13,7 +12,6 @@ import com.company.storybook.repository.CartItemRepository;
 import com.company.storybook.repository.CartRepository;
 import com.company.storybook.repository.StorybookRepository;
 import com.company.storybook.repository.UserRepository;
-import com.company.storybook.repository.UserLibraryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +22,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * CartServiceImpl - Implementation for cart-related operations
+ */
 @Service(value = "cartService")
 public class CartServiceImpl implements CartService {
 
@@ -40,31 +41,7 @@ public class CartServiceImpl implements CartService {
     private UserRepository userRepository;
 
     @Autowired
-    private UserLibraryRepository userLibraryRepository;
-
-    @Override
-    public List<StorybookResponse> getAllStorybooks() {
-        return storybookRepository.findAll().stream()
-                .map(this::mapStorybookToResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public StorybookResponse getStorybookById(Long storybookId) throws StoryBookException {
-        Storybook storybook = storybookRepository.findById(storybookId)
-                .orElseThrow(() -> new StoryBookException("storybook.not.found"));
-        return mapStorybookToResponse(storybook);
-    }
-
-    @Override
-    public List<StorybookResponse> searchStorybooks(String keyword) {
-        if (keyword == null || keyword.isEmpty()) {
-            return getAllStorybooks();
-        }
-        return storybookRepository.searchStorybooks(keyword).stream()
-                .map(this::mapStorybookToResponse)
-                .collect(Collectors.toList());
-    }
+    private LibraryService libraryService;
 
     @Override
     @Transactional
@@ -78,7 +55,7 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new StoryBookException("storybook.not.found"));
 
         // Check if storybook is already purchased (in user library)
-        if (userLibraryRepository.existsByUserIdAndStorybookId(userId, request.getStorybookId())) {
+        if (libraryService.userOwnsStorybook(userId, request.getStorybookId())) {
             throw new StoryBookException("cart.item.already.purchased");
         }
 
@@ -153,6 +130,61 @@ public class CartServiceImpl implements CartService {
         return buildCartResponse(cart);
     }
 
+    @Override
+    @Transactional
+    public CartResponseDTO updateCartItemQuantity(Long userId, Long cartItemId, Integer quantity) throws StoryBookException {
+        // Verify user exists
+        userRepository.findById(userId)
+                .orElseThrow(() -> new StoryBookException("user.not.found"));
+
+        // Verify cart exists
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new StoryBookException("cart.not.found"));
+
+        // Find cart item
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new StoryBookException("cart.item.not.found"));
+
+        // Verify cart item belongs to user's cart
+        if (!cartItem.getCart().getId().equals(cart.getId())) {
+            throw new StoryBookException("unauthorized.operation");
+        }
+
+        // Validate quantity
+        if (quantity <= 0) {
+            throw new StoryBookException("invalid.quantity");
+        }
+
+        // Update quantity
+        cartItem.setQuantity(quantity);
+        cartItemRepository.save(cartItem);
+        cart.setUpdatedAt(LocalDateTime.now());
+        cartRepository.save(cart);
+
+        // Reload cart from database
+        Cart updatedCart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new StoryBookException("cart.not.found"));
+        
+        return buildCartResponse(updatedCart);
+    }
+
+    @Override
+    @Transactional
+    public void clearCart(Long userId) throws StoryBookException {
+        // Verify user exists
+        userRepository.findById(userId)
+                .orElseThrow(() -> new StoryBookException("user.not.found"));
+
+        // Get cart
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new StoryBookException("cart.not.found"));
+
+        // Remove all cart items
+        cart.getCartItems().clear();
+        cart.setUpdatedAt(LocalDateTime.now());
+        cartRepository.save(cart);
+    }
+
     /**
      * Helper method to build CartResponseDTO from Cart entity
      */
@@ -172,33 +204,6 @@ public class CartServiceImpl implements CartService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         response.setTotalPrice(totalPrice);
-        return response;
-    }
-
-    /**
-     * Helper method to map Storybook entity to StorybookResponse
-     */
-    private StorybookResponse mapStorybookToResponse(Storybook storybook) {
-        StorybookResponse response = new StorybookResponse();
-        response.setId(storybook.getId());
-        response.setTitle(storybook.getTitle());
-        response.setDescription(storybook.getDescription());
-        response.setPrice(storybook.getPrice());
-        response.setAudioUrl(storybook.getAudioUrl());
-        response.setSampleAudioUrl(storybook.getSampleAudioUrl());
-        response.setCoverImageUrl(storybook.getCoverImageUrl());
-        response.setCreatedAt(storybook.getCreatedAt());
-        
-        if (storybook.getAuthor() != null) {
-            response.setAuthorId(storybook.getAuthor().getId());
-            response.setAuthorName(storybook.getAuthor().getName());
-        }
-        
-        if (storybook.getCategory() != null) {
-            response.setCategoryId(storybook.getCategory().getId());
-            response.setCategoryName(storybook.getCategory().getName());
-        }
-        
         return response;
     }
 
@@ -228,3 +233,4 @@ public class CartServiceImpl implements CartService {
         return dto;
     }
 }
+

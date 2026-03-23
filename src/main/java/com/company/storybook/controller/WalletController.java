@@ -1,30 +1,31 @@
 package com.company.storybook.controller;
 
 import com.company.storybook.dto.OrderResponseDTO;
-import com.company.storybook.dto.StorybookResponse;
 import com.company.storybook.dto.WalletBalanceDTO;
 import com.company.storybook.exception.StoryBookException;
-import com.company.storybook.repository.UserLibraryRepository;
 import com.company.storybook.repository.UserRepository;
 import com.company.storybook.service.OrderService;
 import com.company.storybook.service.WalletService;
+import com.company.storybook.utility.AuthenticationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.annotation.PostConstruct;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+/**
+ * Wallet Controller - Handles wallet balance and checkout operations
+ * Library operations have been moved to LibraryController
+ * Endpoints: /wallet/*
+ */
 @RestController
-@RequestMapping("/api/wallet")
-@CrossOrigin(origins = "*")
+@RequestMapping("/wallet")
 public class WalletController {
 
     @Autowired
@@ -37,17 +38,23 @@ public class WalletController {
     private UserRepository userRepository;
 
     @Autowired
-    private UserLibraryRepository userLibraryRepository;
-
-    @Autowired
     private MessageSource messageSource;
 
     /**
+     * Initialize AuthenticationUtil with UserRepository
+     */
+    @PostConstruct
+    public void init() {
+        AuthenticationUtil.setUserRepository(userRepository);
+    }
+
+    /**
      * Get wallet balance for logged-in user
+     * GET /wallet/balance
      */
     @GetMapping("/balance")
     public ResponseEntity<WalletBalanceDTO> getWalletBalance() throws StoryBookException {
-        Long userId = getCurrentUserId();
+        Long userId = AuthenticationUtil.getCurrentUserId();
         WalletBalanceDTO response = new WalletBalanceDTO();
         response.setUserId(userId);
         response.setBalance(walletService.getBalance(userId));
@@ -56,10 +63,11 @@ public class WalletController {
 
     /**
      * Checkout - Process payment from cart using wallet
+     * POST /wallet/checkout
      */
     @PostMapping("/checkout")
     public ResponseEntity<Map<String, Object>> checkout() throws StoryBookException {
-        Long userId = getCurrentUserId();
+        Long userId = AuthenticationUtil.getCurrentUserId();
         OrderResponseDTO order = orderService.checkout(userId);
 
         Map<String, Object> response = new HashMap<>();
@@ -67,72 +75,5 @@ public class WalletController {
         response.put("order", order);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    /**
-     * Get user's library (purchased storybooks)
-     */
-    @GetMapping("/library")
-    public ResponseEntity<Map<String, Object>> getUserLibrary() throws StoryBookException {
-        Long userId = getCurrentUserId();
-        
-        List<StorybookResponse> library = userLibraryRepository.findByUserId(userId).stream()
-                .map(userLibrary -> mapStorybookToResponse(userLibrary.getStorybook()))
-                .collect(Collectors.toList());
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "User library retrieved successfully");
-        response.put("items", library);
-        response.put("total", library.size());
-
-        return ResponseEntity.ok(response);
-    }
-
-    /**
-     * Helper method to get current user ID from security context
-     */
-    private Long getCurrentUserId() throws StoryBookException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new StoryBookException("user.not.authenticated");
-        }
-
-        String email = (String) authentication.getPrincipal();
-
-        if (email == null || email.isEmpty()) {
-            throw new StoryBookException("user.not.authenticated");
-        }
-
-        return userRepository.findByEmail(email)
-                .map(user -> user.getId())
-                .orElseThrow(() -> new StoryBookException("user.not.found"));
-    }
-
-    /**
-     * Helper method to map Storybook entity to StorybookResponse
-     */
-    private StorybookResponse mapStorybookToResponse(com.company.storybook.entity.Storybook storybook) {
-        StorybookResponse response = new StorybookResponse();
-        response.setId(storybook.getId());
-        response.setTitle(storybook.getTitle());
-        response.setDescription(storybook.getDescription());
-        response.setPrice(storybook.getPrice());
-        response.setAudioUrl(storybook.getAudioUrl());
-        response.setSampleAudioUrl(storybook.getSampleAudioUrl());
-        response.setCoverImageUrl(storybook.getCoverImageUrl());
-        response.setCreatedAt(storybook.getCreatedAt());
-
-        if (storybook.getAuthor() != null) {
-            response.setAuthorId(storybook.getAuthor().getId());
-            response.setAuthorName(storybook.getAuthor().getName());
-        }
-
-        if (storybook.getCategory() != null) {
-            response.setCategoryId(storybook.getCategory().getId());
-            response.setCategoryName(storybook.getCategory().getName());
-        }
-
-        return response;
     }
 }

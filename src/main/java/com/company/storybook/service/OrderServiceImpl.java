@@ -29,7 +29,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private UserLibraryRepository userLibraryRepository;
+    private LibraryService libraryService;
 
     @Autowired
     private WalletService walletService;
@@ -76,13 +76,14 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setPrice(cartItem.getStorybook().getPrice());
             orderItems.add(orderItem);
 
-            // Add storybook to user library
-            if (!userLibraryRepository.existsByUserIdAndStorybookId(userId, cartItem.getStorybook().getId())) {
-                UserLibrary userLibrary = new UserLibrary();
-                userLibrary.setUser(user);
-                userLibrary.setStorybook(cartItem.getStorybook());
-                userLibrary.setPurchasedAt(LocalDateTime.now());
-                userLibraryRepository.save(userLibrary);
+            // Add storybook to user library using LibraryService
+            try {
+                libraryService.addToLibrary(userId, cartItem.getStorybook().getId());
+            } catch (StoryBookException e) {
+                // Ignore if already in library or other errors
+                if (!e.getMessage().contains("library.item.already.exists")) {
+                    throw e;
+                }
             }
         }
 
