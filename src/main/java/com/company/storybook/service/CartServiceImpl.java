@@ -130,60 +130,7 @@ public class CartServiceImpl implements CartService {
         return buildCartResponse(cart);
     }
 
-    @Override
-    @Transactional
-    public CartResponseDTO updateCartItemQuantity(Long userId, Long cartItemId, Integer quantity) throws StoryBookException {
-        // Verify user exists
-        userRepository.findById(userId)
-                .orElseThrow(() -> new StoryBookException("user.not.found"));
 
-        // Verify cart exists
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new StoryBookException("cart.not.found"));
-
-        // Find cart item
-        CartItem cartItem = cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new StoryBookException("cart.item.not.found"));
-
-        // Verify cart item belongs to user's cart
-        if (!cartItem.getCart().getId().equals(cart.getId())) {
-            throw new StoryBookException("unauthorized.operation");
-        }
-
-        // Validate quantity
-        if (quantity <= 0) {
-            throw new StoryBookException("invalid.quantity");
-        }
-
-        // Update quantity
-        cartItem.setQuantity(quantity);
-        cartItemRepository.save(cartItem);
-        cart.setUpdatedAt(LocalDateTime.now());
-        cartRepository.save(cart);
-
-        // Reload cart from database
-        Cart updatedCart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new StoryBookException("cart.not.found"));
-        
-        return buildCartResponse(updatedCart);
-    }
-
-    @Override
-    @Transactional
-    public void clearCart(Long userId) throws StoryBookException {
-        // Verify user exists
-        userRepository.findById(userId)
-                .orElseThrow(() -> new StoryBookException("user.not.found"));
-
-        // Get cart
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new StoryBookException("cart.not.found"));
-
-        // Remove all cart items
-        cart.getCartItems().clear();
-        cart.setUpdatedAt(LocalDateTime.now());
-        cartRepository.save(cart);
-    }
 
     /**
      * Helper method to build CartResponseDTO from Cart entity

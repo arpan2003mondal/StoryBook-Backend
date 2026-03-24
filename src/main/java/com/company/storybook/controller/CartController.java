@@ -86,36 +86,5 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Update cart item quantity
-     * PUT /cart/items/{cartItemId}
-     */
-    @PutMapping("/items/{cartItemId}")
-    public ResponseEntity<Map<String, Object>> updateCartItemQuantity(
-            @PathVariable Long cartItemId,
-            @RequestParam Integer quantity) throws StoryBookException {
-        Long userId = AuthenticationUtil.getCurrentUserId();
-        CartResponseDTO cart = cartService.updateCartItemQuantity(userId, cartItemId, quantity);
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", messageSource.getMessage("cart.item.updated.success", null, Locale.ENGLISH));
-        response.put("cart", cart);
-        
-        return ResponseEntity.ok(response);
-    }
 
-    /**
-     * Clear user's cart
-     * DELETE /cart/clear
-     */
-    @DeleteMapping("/clear")
-    public ResponseEntity<Map<String, Object>> clearCart() throws StoryBookException {
-        Long userId = AuthenticationUtil.getCurrentUserId();
-        cartService.clearCart(userId);
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", messageSource.getMessage("cart.cleared.success", null, Locale.ENGLISH));
-        
-        return ResponseEntity.ok(response);
-    }
 }

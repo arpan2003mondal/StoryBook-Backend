@@ -13,6 +13,7 @@ import com.company.storybook.repository.UserRepository;
 import com.company.storybook.repository.WalletRepository;
 import com.company.storybook.repository.CartRepository;
 import com.company.storybook.utility.JwtUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,6 +53,11 @@ public class UserAuthServiceImpl implements UserAuthService {
     @Transactional
     public String registerUser(RegisterRequest registerRequest) throws StoryBookException {
 
+        // Validate password and confirm password match
+        if (!registerRequest.getPassword().equals(registerRequest.getConfirmPassword())) {
+            throw new StoryBookException("user.confirmPassword.mismatch");
+        }
+
         Optional<User> optional = userRepository.findByEmail(registerRequest.getEmail());
         if(optional.isPresent()){
             throw new StoryBookException("user.exists");
@@ -88,7 +94,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     public String loginUser(LoginRequest loginRequest) throws StoryBookException {
         // Fetch user by email
         User user = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new StoryBookException("user.not.found"));
+                .orElseThrow(() -> new StoryBookException("user.invalid.credentials"));
 
         // Verify password
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {

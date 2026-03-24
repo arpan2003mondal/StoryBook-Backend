@@ -24,13 +24,5 @@ public interface CartService {
      */
     CartResponseDTO getCart(Long userId) throws StoryBookException;
 
-    /**
-     * Update quantity of a cart item
-     */
-    CartResponseDTO updateCartItemQuantity(Long userId, Long cartItemId, Integer quantity) throws StoryBookException;
 
-    /**
-     * Clear all items from user's cart
-     */
-    void clearCart(Long userId) throws StoryBookException;
 }
