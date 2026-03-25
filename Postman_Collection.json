@@ -26,7 +26,49 @@
       "name": "Authentication",
       "item": [
         {
-          "name": "Register User",
+          "name": "1️⃣ Send OTP for Registration",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 202) {",
+                  "    pm.test(\"OTP sent successfully\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(202);",
+                  "        pm.expect(pm.response.text()).to.include(\"OTP sent\");",
+                  "    });",
+                  "    pm.collectionVariables.set(\"registrationEmail\", \"newuser@example.com\");",
+                  "} else {",
+                  "    pm.test(\"Failed to send OTP\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(202);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New User\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"Password@123\",\n  \"confirmPassword\": \"Password@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "register"]
+            }
+          },
+          "description": "STEP 1: Send registration details and receive OTP via email\n- Response: 202 ACCEPTED\n- OTP is sent to the provided email\n- OTP expires in 10 minutes"
+        },
+        {
+          "name": "2️⃣ Verify OTP & Complete Registration",
           "event": [
             {
               "listen": "test",
@@ -34,6 +76,11 @@
                 "exec": [
                   "if (pm.response.code === 201) {",
                   "    pm.test(\"Registration successful\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(201);",
+                  "        pm.expect(pm.response.text()).to.include(\"Registration Successful\");",
+                  "    });",
+                  "} else {",
+                  "    pm.test(\"Registration failed\", function () {",
                   "        pm.expect(pm.response.code).to.equal(201);",
                   "    });",
                   "}"
@@ -51,14 +98,15 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Alice Cooper\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"Password@123\"\n}"
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"otp\": \"123456\",\n  \"registerRequest\": {\n    \"name\": \"New User\",\n    \"email\": \"newuser@example.com\",\n    \"password\": \"Password@123\",\n    \"confirmPassword\": \"Password@123\"\n  }\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/users/register",
+              "raw": "{{baseUrl}}/users/verify-registration",
               "host": ["{{baseUrl}}"],
-              "path": ["users", "register"]
+              "path": ["users", "verify-registration"]
             }
-          }
+          },
+          "description": "STEP 2: Verify OTP received in email and complete registration\n- Request: Email, OTP (from email), and registration details\n- Response: 201 CREATED with success message\n- User account is created with verified email\n- Wallet (1000 RS) and Cart are auto-created"
         },
         {
           "name": "User Login",
@@ -73,6 +121,10 @@
                   "    pm.test(\"Login successful and token saved\", function () {",
                   "        pm.expect(pm.response.code).to.equal(200);",
                   "        pm.expect(token).to.be.ok;",
+                  "    });",
+                  "} else {",
+                  "    pm.test(\"Login failed\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
                   "    });",
                   "}"
                 ]
@@ -96,7 +148,96 @@
               "host": ["{{baseUrl}}"],
               "path": ["users", "login"]
             }
-          }
+          },
+          "description": "Login with registered email and password\n- Returns JWT token for authenticated requests\n- Token valid for 10 hours"
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            }
+          },
+          "description": "Retrieve authenticated user's profile information (excludes password)"
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"User@123\",\n  \"newPassword\": \"NewPassword@456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "change-password"]
+            }
+          },
+          "description": "Change user password (requires authentication)"
+        },
+        {
+          "name": "Change Username",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newUsername\": \"Updated Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/change-username",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "change-username"]
+            }
+          },
+          "description": "Change user's username/display name (requires authentication)"
+        },
+        {
+          "name": "User Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "logout"]
+            }
+          },
+          "description": "Logout user and invalidate JWT token"
         },
         {
           "name": "Admin Login",
@@ -134,24 +275,8 @@
               "host": ["{{baseUrl}}"],
               "path": ["admin", "login"]
             }
-          }
-        },
-        {
-          "name": "User Logout",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{userToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/users/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["users", "logout"]
-            }
-          }
+          },
+          "description": "Login as admin to access admin-only operations"
         },
         {
           "name": "Admin Logout",
@@ -168,7 +293,8 @@
               "host": ["{{baseUrl}}"],
               "path": ["admin", "logout"]
             }
-          }
+          },
+          "description": "Logout admin and invalidate admin JWT token"
         }
       ]
     },

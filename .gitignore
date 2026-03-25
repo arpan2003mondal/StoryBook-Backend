@@ -31,3 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# =============================================
+# ENVIRONMENT CONFIGURATION (SENSITIVE)
+# =============================================
+# Local environment variables (do not commit)
+.env
+.env.local
+.env.*.local
+
+# Application properties with credentials
+# Note: .env.example should be committed with placeholders
+src/main/resources/application-local.properties
+

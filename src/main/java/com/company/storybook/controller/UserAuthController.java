@@ -5,6 +5,7 @@ import com.company.storybook.dto.LoginRequest;
 import com.company.storybook.dto.ChangePasswordRequest;
 import com.company.storybook.dto.ChangeUsernameRequest;
 import com.company.storybook.dto.UserProfileDTO;
+import com.company.storybook.dto.OtpRegisterRequest;
 import com.company.storybook.exception.StoryBookException;
 import com.company.storybook.service.UserAuthService;
 import com.company.storybook.repository.UserRepository;
@@ -39,9 +40,48 @@ public class UserAuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterRequest registerRequest) throws StoryBookException {
+    public ResponseEntity<String> sendOtpForRegistration(@Valid @RequestBody RegisterRequest registerRequest) 
+            throws StoryBookException {
+        /*
+         * STEP 1: Send OTP for registration
+         * POST /users/register
+         * 
+         * Request:
+         * {
+         *   "name": "John Doe",
+         *   "email": "john@example.com",
+         *   "password": "Password@123",
+         *   "confirmPassword": "Password@123"
+         * }
+         * 
+         * Response: 202 ACCEPTED (OTP sent to email)
+         */
+        String message = authService.sendOtpWithRegistrationDetails(registerRequest);
+        return new ResponseEntity<>(message, HttpStatus.ACCEPTED); // 202 Accepted
+    }
 
-        String message = authService.registerUser(registerRequest);
+    @PostMapping("/verify-registration")
+    public ResponseEntity<String> verifyOtpAndRegister(@Valid @RequestBody OtpRegisterRequest otpRegisterRequest) 
+            throws StoryBookException {
+        /*
+         * STEP 2: Verify OTP and complete registration
+         * POST /users/verify-registration
+         * 
+         * Request:
+         * {
+         *   "email": "john@example.com",
+         *   "otp": "123456",
+         *   "registerRequest": {
+         *     "name": "John Doe",
+         *     "email": "john@example.com",
+         *     "password": "Password@123",
+         *     "confirmPassword": "Password@123"
+         *   }
+         * }
+         * 
+         * Response: 201 CREATED (User registered successfully)
+         */
+        String message = authService.verifyOtpAndRegister(otpRegisterRequest);
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }
 
