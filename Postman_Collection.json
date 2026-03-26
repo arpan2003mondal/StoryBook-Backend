@@ -1228,6 +1228,221 @@
           }
         }
       ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        {
+          "name": "Add to Wishlist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.test(\"Item added to wishlist successfully\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(201);",
+                  "        var responseJson = pm.response.json();",
+                  "        pm.expect(responseJson).to.have.property('message');",
+                  "        pm.expect(responseJson.message).to.include('wishlist');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storyBookId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wishlist/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["wishlist", "add"]
+            }
+          },
+          "description": "Add a storybook to user's wishlist (requires authentication)"
+        },
+        {
+          "name": "Add Multiple Items to Wishlist (Item 2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storyBookId\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wishlist/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["wishlist", "add"]
+            }
+          }
+        },
+        {
+          "name": "Add Multiple Items to Wishlist (Item 3)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storyBookId\": 3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wishlist/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["wishlist", "add"]
+            }
+          }
+        },
+        {
+          "name": "Get User Wishlist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Wishlist retrieved successfully\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
+                  "        var responseJson = pm.response.json();",
+                  "        pm.expect(responseJson).to.have.property('wishlistItems');",
+                  "        pm.expect(responseJson).to.have.property('totalItems');",
+                  "        pm.expect(responseJson.wishlistItems).to.be.an('array');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wishlist",
+              "host": ["{{baseUrl}}"],
+              "path": ["wishlist"]
+            }
+          },
+          "description": "Retrieve user's wishlist with all wishlist items"
+        },
+        {
+          "name": "Remove from Wishlist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Item removed from wishlist successfully\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
+                  "        var responseJson = pm.response.json();",
+                  "        pm.expect(responseJson).to.have.property('message');",
+                  "        pm.expect(responseJson.message).to.include('removed');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storyBookId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wishlist/remove",
+              "host": ["{{baseUrl}}"],
+              "path": ["wishlist", "remove"]
+            }
+          },
+          "description": "Remove a storybook from user's wishlist"
+        },
+        {
+          "name": "Remove from Wishlist - Item Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Error when removing non-existent item\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storyBookId\": 999\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wishlist/remove",
+              "host": ["{{baseUrl}}"],
+              "path": ["wishlist", "remove"]
+            }
+          },
+          "description": "Test error handling - item not in wishlist"
+        }
+      ]
     }
   ]
 }
