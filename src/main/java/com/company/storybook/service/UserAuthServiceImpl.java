@@ -15,6 +15,8 @@ import com.company.storybook.repository.WalletRepository;
 import com.company.storybook.repository.CartRepository;
 import com.company.storybook.utility.JwtUtil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +30,8 @@ import java.util.Optional;
 
 @Service(value = "authService")
 public class UserAuthServiceImpl implements UserAuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserAuthServiceImpl.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -52,6 +56,9 @@ public class UserAuthServiceImpl implements UserAuthService {
 
     @Autowired
     private OtpService otpService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     @Transactional
@@ -261,6 +268,10 @@ public class UserAuthServiceImpl implements UserAuthService {
         // Delete OTP after successful verification
         otpService.deleteOtp(email);
 
+        // Send welcome email asynchronously (outside of transaction)
+        sendWelcomeEmailAsync(savedUser.getEmail(), savedUser.getName());
+
+        logger.info("User registered successfully: {}", savedUser.getEmail());
         return messageSource.getMessage("user.registration.success", null, Locale.ENGLISH);
     }
 
@@ -292,5 +303,21 @@ public class UserAuthServiceImpl implements UserAuthService {
         profile.setRole(user.getRole().name());
         profile.setCreatedAt(user.getCreatedAt());
         return profile;
+    }
+
+    /**
+     * Send welcome email asynchronously (non-blocking)
+     * This method runs in a separate thread to avoid transaction issues
+     * @param email - User's email address
+     * @param name - User's name
+     */
+    private void sendWelcomeEmailAsync(String email, String name) {
+        try {
+            logger.info("Starting to send welcome email to: {}", email);
+            emailService.sendWelcomeEmail(email, name);
+            logger.info("Welcome email sent successfully to: {}", email);
+        } catch (Exception e) {
+            logger.error("Failed to send welcome email to {}: {}", email, e.getMessage(), e);
+        }
     }
 }
