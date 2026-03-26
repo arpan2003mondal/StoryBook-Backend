@@ -1,0 +1,53 @@
+# Conversion to YAML from Properties formar report
+# Warnings:
+# - The yaml file had comments which are lost in the refactoring!
+spring:
+  application:
+    name: ${APP_NAME:StoryBook}
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:storybookdb}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+  messages:
+    basename: messages
+    encoding: UTF-8
+  security:
+    user:
+      name: ${SPRING_SECURITY_USERNAME}
+      password: ${SPRING_SECURITY_PASSWORD}
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+    from: ${MAIL_FROM:noreply@storybook.com}
+server:
+  port: ${APP_PORT:1234}
+app:
+  name: ${APP_NAME:StoryBook}
+otp:
+  expiry:
+    minutes: ${OTP_EXPIRY_MINUTES:10}
+logging:
+  level:
+    com:
+      company:
+        storybook:
+          service:
+            UserAuthServiceImpl: INFO
+            EmailService: INFO
+    org:
+      springframework:
+        mail: DEBUG

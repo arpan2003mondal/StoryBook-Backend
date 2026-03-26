@@ -956,6 +956,278 @@
           }
         }
       ]
+    },
+    {
+      "name": "Reviews & Ratings",
+      "item": [
+        {
+          "name": "Submit Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Review submitted successfully\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
+                  "        var responseJson = pm.response.json();",
+                  "        pm.expect(responseJson).to.have.property('reviewId');",
+                  "        pm.expect(responseJson).to.have.property('rating');",
+                  "        pm.expect(responseJson.rating).to.be.within(1, 5);",
+                  "        pm.collectionVariables.set('reviewId', responseJson.reviewId);",
+                  "    });",
+                  "} else {",
+                  "    pm.test(\"Review submission failed\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 2,\n  \"storyBookId\": 1,\n  \"rating\": 5,\n  \"reviewText\": \"This is an amazing storybook! Highly recommended.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storybooks/reviews/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["storybooks", "reviews", "add"]
+            }
+          },
+          "description": "Submit a new review for a storybook with rating (1-5) and review text"
+        },
+        {
+          "name": "Submit Review - 4 Stars",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Review with 4 stars submitted successfully\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "    var responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.rating).to.equal(4);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 2,\n  \"storyBookId\": 1,\n  \"rating\": 4,\n  \"reviewText\": \"Very good story, enjoyed it thoroughly.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storybooks/reviews/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["storybooks", "reviews", "add"]
+            }
+          }
+        },
+        {
+          "name": "Submit Review - Invalid Rating",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Invalid rating (6) returns error\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 2,\n  \"storyBookId\": 1,\n  \"rating\": 6,\n  \"reviewText\": \"This rating is too high!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storybooks/reviews/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["storybooks", "reviews", "add"]
+            }
+          },
+          "description": "Test error handling - rating must be between 1-5"
+        },
+        {
+          "name": "Fetch Reviews for Storybook",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Reviews fetched successfully\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
+                  "        var responseJson = pm.response.json();",
+                  "        pm.expect(responseJson).to.be.an('array');",
+                  "        if (responseJson.length > 0) {",
+                  "            pm.expect(responseJson[0]).to.have.property('reviewId');",
+                  "            pm.expect(responseJson[0]).to.have.property('userName');",
+                  "            pm.expect(responseJson[0]).to.have.property('rating');",
+                  "            pm.expect(responseJson[0]).to.have.property('reviewText');",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storyBookId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storybooks/reviews/fetch",
+              "host": ["{{baseUrl}}"],
+              "path": ["storybooks", "reviews", "fetch"]
+            }
+          },
+          "description": "Fetch all reviews for a specific storybook"
+        },
+        {
+          "name": "Fetch Reviews - Different Storybook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storyBookId\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/storybooks/reviews/fetch",
+              "host": ["{{baseUrl}}"],
+              "path": ["storybooks", "reviews", "fetch"]
+            }
+          }
+        },
+        {
+          "name": "Get Average Rating",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Average rating retrieved successfully\", function () {",
+                  "        pm.expect(pm.response.code).to.equal(200);",
+                  "        var responseJson = pm.response.json();",
+                  "        pm.expect(responseJson).to.have.property('storyBookId');",
+                  "        pm.expect(responseJson).to.have.property('averageRating');",
+                  "        pm.expect(responseJson).to.have.property('totalReviews');",
+                  "        pm.expect(responseJson.averageRating).to.be.within(0, 5);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/storybooks/reviews/rating/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["storybooks", "reviews", "rating", "1"]
+            }
+          },
+          "description": "Get average rating and total review count for a storybook"
+        },
+        {
+          "name": "Get Average Rating - Storybook 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Storybook 2 average rating retrieved\", function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "    var responseJson = pm.response.json();",
+                  "    pm.expect(responseJson.storyBookId).to.equal(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{userToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/storybooks/reviews/rating/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["storybooks", "reviews", "rating", "2"]
+            }
+          }
+        }
+      ]
     }
   ]
 }

@@ -99,14 +99,17 @@ CREATE TABLE user_library (
 
 CREATE TABLE reviews (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT,
-    storybook_id BIGINT,
-    rating INT,
-    comment TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (storybook_id) REFERENCES storybooks(id)
+    user_id BIGINT NOT NULL,
+    storybook_id BIGINT NOT NULL,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    review_text LONGTEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_reviews_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_reviews_storybook_id FOREIGN KEY (storybook_id) REFERENCES storybooks(id) ON DELETE CASCADE,
+    
+    INDEX idx_storybook_id (storybook_id),
+    INDEX idx_user_id (user_id)
 );
 
 CREATE TABLE wishlist (

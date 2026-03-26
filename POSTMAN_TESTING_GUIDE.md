@@ -350,6 +350,157 @@ Example 2 - Adventure Book:
 
 ---
 
+## Reviews & Ratings Endpoints
+
+### Overview
+The Review and Rating API allows **authenticated users** to submit reviews and ratings for storybooks, view all reviews for a storybook, and see the average rating.
+
+**Note:** All review endpoints require authentication (Bearer token).
+
+### Available Endpoints
+
+#### 1. **Submit Review**
+- **Endpoint**: `POST /storybooks/reviews/add`
+- **Authentication**: Required (Bearer {{userToken}})
+- **Description**: Submit a new review for a storybook
+- **Request Body**:
+```json
+{
+  "userId": 2,
+  "storyBookId": 1,
+  "rating": 5,
+  "reviewText": "This is an amazing storybook! Highly recommended."
+}
+```
+- **Parameters**:
+  - `userId`: ID of the user submitting the review (must exist)
+  - `storyBookId`: ID of the storybook being reviewed (must exist)
+  - `rating`: Rating on a scale of 1-5 (required)
+  - `reviewText`: Review commentary (optional)
+- **Success Response** (200 OK):
+```json
+{
+  "reviewId": 1,
+  "userName": "John Doe",
+  "rating": 5,
+  "reviewText": "This is an amazing storybook! Highly recommended.",
+  "createdAt": "2024-03-26T10:30:00"
+}
+```
+- **Error Cases**:
+  - Rating not between 1-5: Returns 400 Bad Request
+  - User not found: Returns 404 Not Found
+  - Storybook not found: Returns 404 Not Found
+  - Storybook not in user library: Returns 400 Bad Request (user must purchase storybook first)
+  - No authentication token: Returns 401 Unauthorized
+
+#### 2. **Fetch Reviews for Storybook**
+- **Endpoint**: `POST /storybooks/reviews/fetch`
+- **Authentication**: Required (Bearer {{userToken}})
+- **Description**: Get all reviews submitted for a specific storybook
+- **Request Body**:
+```json
+{
+  "storyBookId": 1
+}
+```
+- **Parameters**:
+  - `storyBookId`: ID of the storybook to fetch reviews for
+- **Success Response** (200 OK):
+```json
+[
+  {
+    "reviewId": 1,
+    "userName": "John Doe",
+    "rating": 5,
+    "reviewText": "This is an amazing storybook!",
+    "createdAt": "2024-03-26T10:30:00"
+  },
+  {
+    "reviewId": 2,
+    "userName": "Jane Smith",
+    "rating": 4,
+    "reviewText": "Very good story, enjoyed it thoroughly.",
+    "createdAt": "2024-03-26T11:15:00"
+  }
+]
+```
+- **Error Cases**:
+  - Storybook not found: Returns 404 Not Found
+  - No authentication token: Returns 401 Unauthorized
+
+#### 3. **Get Average Rating**
+- **Endpoint**: `GET /storybooks/reviews/rating/{storyBookId}`
+- **Authentication**: Required (Bearer {{userToken}})
+- **Description**: Get the average rating and total review count for a storybook
+- **Path Parameter**:
+  - `storyBookId`: ID of the storybook (e.g., 1)
+- **Success Response** (200 OK):
+```json
+{
+  "storyBookId": 1,
+  "averageRating": 4.5,
+  "totalReviews": 2
+}
+```
+- **Response Fields**:
+  - `storyBookId`: The ID of the storybook
+  - `averageRating`: Average of all ratings (0.0 if no reviews exist)
+  - `totalReviews`: Total number of reviews
+- **Error Cases**:
+  - Storybook not found: Returns 404 Not Found
+  - No authentication token: Returns 401 Unauthorized
+
+### Test Cases
+
+### Test Case 1: Submit Review (Requires Purchase First)
+1. **First, login as a regular user**:
+   - Use: `User Login` endpoint
+   - Get the {{userToken}}
+2. **Add storybook to cart**:
+   - Use: `Add Item to Cart` endpoint
+   - Add storybook ID 1 or another ID
+3. **Checkout to purchase the storybook**:
+   - Use: `Checkout` endpoint
+   - Storybook will be added to user library
+4. **Then submit review**:
+   - Use endpoint: `POST /storybooks/reviews/add`
+   - Add Authorization header: `Bearer {{userToken}}`
+   - Use userId: 2, storyBookId: 1 (must match the purchased storybook)
+   - Set rating: 5
+   - Add review text: "This is an amazing storybook!"
+   - Expected: 200 OK with review details
+
+#### Test Case 2: Submit Review for Non-Purchased Storybook
+1. Login and get {{userToken}}
+2. Try to submit review for a storybook NOT in library
+3. Expected: 400 Bad Request with message "You can only review storybooks in your library."
+1. Login first and get {{userToken}}
+2. Use endpoint: `POST /storybooks/reviews/add`
+3. Add Authorization header: `Bearer {{userToken}}`
+4. Set rating: 6 (invalid)
+5. Expected: 400 Bad Request with error message
+
+#### Test Case 3: Fetch Reviews (Requires Login)
+1. Login first and get {{userToken}}
+2. Use endpoint: `POST /storybooks/reviews/fetch`
+3. Add Authorization header: `Bearer {{userToken}}`
+4. Use storyBookId: 1
+5. Expected: 200 OK with array of reviews
+
+#### Test Case 4: Get Average Rating (Requires Login)
+1. Login first and get {{userToken}}
+2. Use endpoint: `GET /storybooks/reviews/rating/1`
+3. Add Authorization header: `Bearer {{userToken}}`
+4. Expected: 200 OK with average rating and total reviews
+5. If no reviews: averageRating should be 0.0
+
+#### Test Case 5: Access Review Without Authentication
+1. Try to submit review WITHOUT Authorization header
+2. Expected: 401 Unauthorized - "User not authenticated"
+
+---
+
 ## Complete Test Scenario
 
 Here's a recommended order to test all endpoints:
@@ -357,7 +508,7 @@ Here's a recommended order to test all endpoints:
 1. **Admin Login** - Get admin token
 2. **Add New Storybook** - Create a new book
 3. **User Registration** - Create a new user account
-4. **User Login** - Get user token
+4. **User Login** - Get user token (REQUIRED for review endpoints)
 5. **Get All Storybooks** - View available books
 6. **Search Storybooks** - Find specific books
 7. **Get Storybook by ID** - Get details of one book
@@ -366,8 +517,11 @@ Here's a recommended order to test all endpoints:
 10. **Check Wallet Balance** - Check funds
 11. **Checkout** - Create an order
 12. **View Library** - See purchased books
-13. **Remove from Cart** - Test cart management
-14. **User Logout** - End session
+13. **Submit Review** - Add review for purchased storybook (requires userToken)
+14. **Fetch Reviews** - View all reviews for storybook (requires userToken)
+15. **Get Average Rating** - Check storybook rating (requires userToken)
+16. **Remove from Cart** - Test cart management
+17. **User Logout** - End session
 
 ---
 
@@ -390,6 +544,31 @@ Here's a recommended order to test all endpoints:
 - Use valid storybook IDs (1-5 are pre-existing)
 - Check if the ID exists by calling Get All Storybooks first
 
+### Issue: "Rating must be between 1 and 5" error
+**Solution**:
+- Ensure rating is an integer between 1 and 5
+- Check that the rating value is provided
+
+### Issue: "401 Unauthorized" when submitting/fetching reviews
+**Solution**:
+- Review endpoints require authentication (Bearer token)
+- First login with **User Login** endpoint to get {{userToken}}
+- Add Authorization header: `Bearer {{userToken}}`
+- All review endpoints in Postman collection already have this configured
+- If manually testing, include the Authorization header with a valid JWT token
+
+### Issue: "You can only review storybooks in your library" error
+**Solution**:
+- You can only submit reviews for storybooks you have purchased
+- First, add the storybook to your cart and complete checkout  
+- The storybook will be added to your library
+- Then you can submit a review for it
+
+### Issue: "User not found" when submitting review
+**Solution**:
+- The userId in the review request must exist in the database
+- Use one of the pre-existing user IDs (2 or 3) or create a new user first
+
 ### Issue: "Checkout failed" error
 **Solution**:
 - Ensure cart has items
@@ -411,4 +590,6 @@ Here's a recommended order to test all endpoints:
 - JWT tokens expire after the session ends
 - Passwords are hashed using BCrypt in the database
 - The application runs on port 1234
+- Rating scale is 1-5, where 1 is poorest and 5 is excellent
+- Average rating is calculated from all reviews for a storybook
 
