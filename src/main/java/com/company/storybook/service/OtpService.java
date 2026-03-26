@@ -67,6 +67,42 @@ public class OtpService {
     }
 
     /**
+     * Generate and send forgot password OTP to email
+     * @param email - Email address to send forgot password OTP to
+     * @throws StoryBookException if OTP sending fails
+     */
+    @Transactional
+    public void sendForgotPasswordOtp(String email) throws StoryBookException {
+        try {
+            // Delete existing OTP if any
+            otpRepository.deleteByEmail(email);
+
+            // Generate 6-digit OTP
+            String otp = generateOtp();
+
+            // Calculate expiry time
+            LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(otpExpiryMinutes);
+
+            // Save OTP to database
+            OtpVerification otpVerification = new OtpVerification();
+            otpVerification.setEmail(email);
+            otpVerification.setOtp(otp);
+            otpVerification.setExpiresAt(expiresAt);
+            otpVerification.setAttempts(0);
+            otpVerification.setIsVerified(false);
+            otpRepository.save(otpVerification);
+
+            // Send OTP via email with forgot password template
+            emailService.sendForgotPasswordOtpEmail(email, otp);
+
+        } catch (MessagingException e) {
+            throw new StoryBookException("otp.send.failed");
+        } catch (Exception e) {
+            throw new StoryBookException("otp.send.failed");
+        }
+    }
+
+    /**
      * Verify OTP
      * @param email - Email address
      * @param otp - OTP code to verify

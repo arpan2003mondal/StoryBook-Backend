@@ -6,6 +6,8 @@ import com.company.storybook.dto.ChangePasswordRequest;
 import com.company.storybook.dto.ChangeUsernameRequest;
 import com.company.storybook.dto.UserProfileDTO;
 import com.company.storybook.dto.OtpRegisterRequest;
+import com.company.storybook.dto.ForgotPasswordRequest;
+import com.company.storybook.dto.ResetPasswordRequest;
 import com.company.storybook.exception.StoryBookException;
 import com.company.storybook.service.UserAuthService;
 import com.company.storybook.repository.UserRepository;
@@ -138,5 +140,46 @@ public class UserAuthController {
         Long userId = AuthenticationUtil.getCurrentUserId();
         UserProfileDTO profile = authService.getUserProfile(userId);
         return ResponseEntity.ok(profile);
+    }
+
+    /**
+     * Send forgot password OTP
+     * POST /users/forgot-password
+     * No authentication required
+     * 
+     * Request:
+     * {
+     *   "email": "user@example.com"
+     * }
+     * 
+     * Response: 202 ACCEPTED (OTP sent to email)
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> sendForgotPasswordOtp(@Valid @RequestBody ForgotPasswordRequest forgotPasswordRequest) 
+            throws StoryBookException {
+        String message = authService.sendForgotPasswordOtp(forgotPasswordRequest);
+        return new ResponseEntity<>(message, HttpStatus.ACCEPTED);
+    }
+
+    /**
+     * Reset password with OTP verification
+     * POST /users/reset-password
+     * No authentication required
+     * 
+     * Request:
+     * {
+     *   "email": "user@example.com",
+     *   "otp": "123456",
+     *   "newPassword": "NewPassword@123",
+     *   "confirmPassword": "NewPassword@123"
+     * }
+     * 
+     * Response: 200 OK (Password reset successfully)
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPasswordWithOtp(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) 
+            throws StoryBookException {
+        String message = authService.resetPasswordWithOtp(resetPasswordRequest);
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 }

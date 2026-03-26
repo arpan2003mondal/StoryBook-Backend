@@ -6,6 +6,8 @@ import com.company.storybook.dto.ChangePasswordRequest;
 import com.company.storybook.dto.ChangeUsernameRequest;
 import com.company.storybook.dto.UserProfileDTO;
 import com.company.storybook.dto.OtpRegisterRequest;
+import com.company.storybook.dto.ForgotPasswordRequest;
+import com.company.storybook.dto.ResetPasswordRequest;
 import com.company.storybook.entity.User;
 import com.company.storybook.entity.Wallet;
 import com.company.storybook.entity.Cart;
@@ -28,7 +30,7 @@ import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Optional;
 
-@Service(value = "authService")
+@Service(value = "userAuthService")
 public class UserAuthServiceImpl implements UserAuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserAuthServiceImpl.class);
@@ -137,6 +139,13 @@ public class UserAuthServiceImpl implements UserAuthService {
         // Encode new password and update
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+
+        // Send password change confirmation email
+        try {
+            emailService.sendPasswordChangeEmail(user.getEmail(), user.getName());
+        } catch (Exception e) {
+            logger.error("Failed to send password change confirmation email to: {}", user.getEmail(), e);
+        }
 
         return messageSource.getMessage("user.password.change.success", null, Locale.ENGLISH);
     }
@@ -271,7 +280,6 @@ public class UserAuthServiceImpl implements UserAuthService {
         // Send welcome email asynchronously (outside of transaction)
         sendWelcomeEmailAsync(savedUser.getEmail(), savedUser.getName());
 
-        logger.info("User registered successfully: {}", savedUser.getEmail());
         return messageSource.getMessage("user.registration.success", null, Locale.ENGLISH);
     }
 
@@ -313,11 +321,78 @@ public class UserAuthServiceImpl implements UserAuthService {
      */
     private void sendWelcomeEmailAsync(String email, String name) {
         try {
-            logger.info("Starting to send welcome email to: {}", email);
             emailService.sendWelcomeEmail(email, name);
-            logger.info("Welcome email sent successfully to: {}", email);
         } catch (Exception e) {
             logger.error("Failed to send welcome email to {}: {}", email, e.getMessage(), e);
         }
+    }
+
+    /**
+     * Send forgot password OTP to user email
+     * Step 1: User submits email
+     * System: Validates email, checks if user exists, generates OTP, sends email
+     */
+    @Override
+    @Transactional
+    public String sendForgotPasswordOtp(ForgotPasswordRequest forgotPasswordRequest) throws StoryBookException {
+        String email = forgotPasswordRequest.getEmail();
+        
+        // Validate email format
+        if (!isValidEmail(email)) {
+            throw new StoryBookException("user.email.invalid.format");
+        }
+        
+        // Check if user exists with this email
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isEmpty()) {
+            throw new StoryBookException("user.not.found");
+        }
+        
+        // Send forgot password OTP to email
+        otpService.sendForgotPasswordOtp(email);
+        
+        return messageSource.getMessage("otp.sent.success", null, Locale.ENGLISH);
+    }
+
+    /**
+     * Reset password with OTP verification
+     * Step 2: User enters OTP and new password
+     * System: Verify OTP, update password
+     */
+    @Override
+    @Transactional
+    public String resetPasswordWithOtp(ResetPasswordRequest resetPasswordRequest) throws StoryBookException {
+        String email = resetPasswordRequest.getEmail();
+        String otp = resetPasswordRequest.getOtp();
+        String newPassword = resetPasswordRequest.getNewPassword();
+        String confirmPassword = resetPasswordRequest.getConfirmPassword();
+        
+        // Verify passwords match
+        if (!newPassword.equals(confirmPassword)) {
+            throw new StoryBookException("user.confirmPassword.mismatch");
+        }
+        
+        // Verify OTP
+        otpService.verifyOtp(email, otp);
+        
+        // Get user
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new StoryBookException("user.not.found"));
+        
+        // Update password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        
+        // Delete OTP after successful verification
+        otpService.deleteOtp(email);
+
+        // Send password change confirmation email
+        try {
+            emailService.sendPasswordChangeEmail(user.getEmail(), user.getName());
+        } catch (Exception e) {
+            logger.error("Failed to send password change confirmation email to: {}", user.getEmail(), e);
+        }
+
+        return messageSource.getMessage("user.password.change.success", null, Locale.ENGLISH);
     }
 }

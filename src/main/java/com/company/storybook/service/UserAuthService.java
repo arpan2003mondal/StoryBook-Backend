@@ -6,6 +6,8 @@ import com.company.storybook.dto.ChangePasswordRequest;
 import com.company.storybook.dto.ChangeUsernameRequest;
 import com.company.storybook.dto.UserProfileDTO;
 import com.company.storybook.dto.OtpRegisterRequest;
+import com.company.storybook.dto.ForgotPasswordRequest;
+import com.company.storybook.dto.ResetPasswordRequest;
 import com.company.storybook.exception.StoryBookException;
 
 public interface UserAuthService {
@@ -19,4 +21,8 @@ public interface UserAuthService {
     // OTP Registration Methods
     String sendOtpWithRegistrationDetails(RegisterRequest registerRequest) throws StoryBookException;
     String verifyOtpAndRegister(OtpRegisterRequest otpRegisterRequest) throws StoryBookException;
+    
+    // Forgot Password Methods
+    String sendForgotPasswordOtp(ForgotPasswordRequest forgotPasswordRequest) throws StoryBookException;
+    String resetPasswordWithOtp(ResetPasswordRequest resetPasswordRequest) throws StoryBookException;
 }
